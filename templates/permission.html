@@ -1,0 +1,72 @@
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+	<title>NAS用户权限管理中心</title>
+    {% load static %}
+    <script type="text/javascript" src="{% static "treeview/jquery-1.7.2.js" %}"></script>
+    <link rel="stylesheet" href="{% static "treeview/jquery.treeview.css" %}"  type="text/css"/>
+    <script type="text/javascript" src="{% static "treeview/jquery.treeview.js" %}"></script>
+    <style type="text/css">
+        #page{
+                width: 100%;
+                color: white;
+            }
+        .table td{
+            border:1px solid black;
+        }
+    </style>
+	</head>
+   <body>
+      <script type="text/javascript">
+         $(document).ready(function() {
+             $("#tree").treeview({
+                 collapsed: false,
+                 unique: true
+             });
+         })
+       </script>
+    <div style="width:100%; border:1px">
+    <div id="top" style="width:100%; height:50px;">
+	<table align="left" width="100%" border="2" cellpadding="0" cellspacing="0"><caption align="center">当前目录:{{data.path}}&nbsp&nbsp&nbsp被管理账号:{{data.user}}&nbsp&nbsp&nbsp刷新时间:{{data.logintime}}</caption></table>
+    </div>
+       <div style="font-size: medium;" id="tree" class="filetree">
+        <li>
+            <div>
+                <a href="/main?path={{ data.html.path}}">
+                    <span class="{{ data.html.type }}" >{{ data.html.name}}</span>
+                </a>
+                <ul style="width:550px;border:1px solid black;">
+                    {% for item in data.html.subdic %}
+                    <li>
+                        <form action="/permission" method="post">
+                            <input type="text" name="path" value="{{ item.path}}" hidden>
+                            <input type="text" name="username" value="{{ data.user}}" hidden>
+                            <div>
+                                <div style="width:350px;display:inline-block">
+                                {% ifequal item.type  'folder' %}
+                                    <a href="/permission?path={{ item.path }}&username={{data.user}}">
+                                {% else%}
+                                    <a href="/download?path={{ item.path }}">
+                                {% endifequal %}
+                                    <span class="{{ item.type }}" >{{ item.name }}</span></a>
+                                </div>
+                                <div style="width:50px;display:inline-block">
+                                    <input type="submit" name="submit" value="只读" {% ifequal item.permission '只读' %}disabled{% endifequal %}>
+                                </div>
+                                <div style="width:50px;display:inline-block">
+                                    <input type="submit" name="submit" value="读写" {% ifequal item.permission '读写' %}disabled{% endifequal %}>
+                                </div>
+                                 <div style="width:50px;display:inline-block">
+                                    <input type="submit" name="submit" value="隐藏" {% ifequal item.permission '隐藏' %}disabled{% endifequal %}>
+                                 </div>
+                            </div>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </li>
+       </div>
+    </div>
+  </body>
+</html>

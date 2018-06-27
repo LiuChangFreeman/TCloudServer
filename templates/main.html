@@ -1,0 +1,121 @@
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+	<title>NAS文件资源管理器</title>
+    {% load static %}
+    <script type="text/javascript" src="{% static "treeview/jquery-1.7.2.js" %}"></script>
+    <link rel="stylesheet" href="{% static "treeview/jquery.treeview.css" %}"  type="text/css"/>
+    <script type="text/javascript" src="{% static "treeview/jquery.treeview.js" %}"></script>
+    <style type="text/css">
+        #page{
+                width: 100%;
+                color: white;
+            }
+        .table td{
+            border:1px solid black;
+        }
+    </style>
+	</head>
+   <body>
+      <script type="text/javascript">
+     $(document).ready(function() {
+         $("#tree").treeview({
+             collapsed: false,
+             unique: true
+         });
+     })
+   </script>
+    <div style="width:100%; border:1px">
+    <div id="top" style="width:100%; height:50px;">
+	<table align="left" width="100%" border="2" cellpadding="0" cellspacing="0"><caption align="center">当前目录:{{data.html.path}}&nbsp&nbsp&nbsp<span style="color: red">权限:{{ data.html.permission}}</span>&nbsp&nbsp&nbsp账号:{{data.html.username}}&nbsp&nbsp&nbsp刷新时间:{{data.html.logintime}}</caption></table> </div>
+
+    <div id="middle" style="height:500px; width:100%">
+	<div id="left" style="width:15%; height:500px;float: right;">
+    <table align="left" width="85%" border="0" cellpadding="0" cellspacing="0">
+        <ul id="leftmenu">
+            <li><a href="/changepassword?username={{data.html.username}}">修改密码</a></li>
+            {% ifequal data.html.username 'root'%}
+                <li><a href="/manage">管理中心</a></li>
+            {% endifequal %}
+            <li><a href=/logout>退出</a></li>
+        </ul>
+    </table>
+    </div>
+      <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="path" value="{{data.html.path}}">
+          <table class="table">
+               <tr>
+                   <td colspan="2"><label style="font-size: medium">上传文件到当前目录(可多选)</label></td>
+               </tr>
+               <tr>
+                   <td><input type="file" name="file" multiple="multiple"></td>
+                   <td><input type="submit" name="submit" value="点我上传文件"></td>
+               </tr>
+          </table>
+      </form>
+
+      <form action="/uploadfolder" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="path" value="{{data.html.path}}">
+          <table class="table">
+                  <tr>
+                      <td colspan="2"><label style="font-size: medium">在当前目录建立文件夹(可上传文件)</label></td>
+                  </tr>
+                   <tr>
+                      <td><label style="font-size: medium">要建立的文件夹名称:</label></td>
+                      <td><input name="foldername" type="text" style="font-size:smaller;width: 95px"></td>
+                   </tr>
+                   <tr>
+                       <td><input type="file" name="file" multiple="multiple"></td>
+                       <td><input type="submit" name="submit" value="点我建文件夹"></td>
+                   </tr>
+          </table>
+      </form>
+
+       <div style="font-size: medium;" id="tree" class="filetree">
+       <form action="/multiple" method="post">
+       <div>
+       <div style="width:225px;display:inline-block;text-align:center;border:1px solid black;"><input type="submit" name="submit" value="删除"></div>
+       <div style="width:225px;display:inline-block;text-align:center;border:1px solid black;"><input type="submit" name="submit" value="下载"></div>
+       <div>
+        <li>
+            <div>
+                <a href="/main?path={{ data.html.path}}">
+                    <span class="{{ data.html.type }}" >{{ data.html.name}}</span>
+                </a>
+            </div>
+                <ul style="width:550px;border:1px solid black;">
+                    {% for item in data.html.subdic %}
+{#                    <li {% ifequal item.permission '只读' %}hidden{% endifequal %}>#}
+                        <li>
+                            <div>
+                                <div style="width:350px;display:inline-block">
+                                {% ifequal item.type  'folder' %}
+                                    <a href="/main?path={{ item.path }}">
+                                {% else%}
+                                    <a href="/download?path={{ item.path }}">
+                                {% endifequal %}
+                                    <span class="{{ item.type }}" >{{ item.name }}</span></a>
+                                </div>
+                                <div style="width:50px;display:inline-block">
+                                    <input type="checkbox" name="path" value="{{ item.path }}">
+                                </div>
+                                <div style="width:50px;display:inline-block;font-size: medium">
+                                    {% ifequal item.permission '只读' %}
+                                        <label style="font-size: small">只读</label>
+                                    {% else %}
+                                        <label style="font-size: small">读写</label>
+                                    {% endifequal %}
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </li>
+       </div>
+       </form>
+       </div>
+    </div>
+    </div>
+  </body>
+</html>
